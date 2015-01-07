@@ -1,0 +1,91 @@
+verilog_instance.txt*	Verilogのモジュール名からwire , instanceを挿入します
+
+Version: 1.0
+Author : norikatsu <norikatsu@gmail.com>
+License: VIM LICENSE
+
+==============================================================================
+目次						*verilog_instance-contents*
+
+概要				|verilog_instance-introduction|
+インターフェース		|verilog_instance-interface|
+  コマンド			  |verilog_instance-commands|
+  関数				  |verilog_instance-functions|
+  キーマッピング		  |verilog_instance-key-mappings|
+カスタマイズ			|verilog_instance-customizing|
+更新履歴			|verilog_instance-changelog|
+
+
+
+==============================================================================
+概要						*verilog_instance-introduction*
+
+verilog_instance.vim はVerilogのモジュール名を入力し :VerilogInstanceInst
+コマンドを実行することで、インスタンスを自動挿入します
+また :VerilogInstanceWire コマンドを実行することで、output,inoutポート用の
+wireを自動挿入します。
+実行時にはカレントに記入したモジュール名の verilogファイルを置いておく必要が
+あります。
+またVerilog 1ファイルに1モジュールとしてください
+
+要件:
+- Vim 7.0 以降
+- Python 3.0以降
+
+最新版:
+https://github.com/vim-jp/vim-verilog_instance
+
+
+
+==============================================================================
+インターフェース				*verilog_instance-interface*
+
+------------------------------------------------------------------------------
+コマンド					*verilog_instance-commands*
+
+:VerilogInstanceInst				:VerilogInstanceInst
+	モジュール名を記入しカーソルをモジュール名に置き上記コマンドを実行する
+        ことでインスタンスを自動挿入します
+
+:VerilogInstanceWire				:VerilogInstanceWire
+	モジュール名を記入しカーソルをモジュール名に置き上記コマンドを実行する
+        ことでモジュールのoutput,inoutポートのwireが自動挿入されます
+
+------------------------------------------------------------------------------
+関数						*verilog_instance-functions*
+
+verilog_instance#insert( mode )				verilog_instance#insert( mode )
+	|:VerilogInstance| の関数版です。
+        引数に0でWireを、1でインスタンスを挿入します
+
+------------------------------------------------------------------------------
+キーマッピング					*verilog_instance-key-mappings*
+
+<Plug>(verilog_instance_wire)			*<Plug>(verilog_instance_wire)*
+	:VerilogInstanceWire を実行します。
+
+<Plug>(verilog_instance_inst)			*<Plug>(verilog_instance_inst)*
+	:VerilogInstanceInst を実行します。
+
+				      *g:verilog_instance_no_default_key_mappings*
+以下のキーマッピングは、既に定義されていたり
+g:verilog_instance_no_default_key_mappings に 1 が設定されていると定義されません。
+
+{lhs}			{rhs}
+--------		-----------------------------
+<Space>mm		<Plug>(verilog_instance_wire)
+<Space>nn		<Plug>(verilog_instance_inst)
+
+
+
+
+==============================================================================
+更新履歴					*verilog_instance-changelog*
+
+1.0	2015-01-08
+	- 初版。
+
+
+
+==============================================================================
+vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
