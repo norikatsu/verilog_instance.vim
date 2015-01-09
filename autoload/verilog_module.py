@@ -187,15 +187,45 @@ file_open = 0   # まだファイル未オープン
 try:
     f = open(file_verilog,"r")
 except IOError:
-    print ( "Can't open " + file_verilog )
+    #print ( "Can't open " + file_verilog )
+
+    file_verilog = file_sysverilog
     try:
-        f = open(file_sysverilog,"r")
+        f = open(file_verilog,"r")
     except IOError:
-        print ( "Can't open " + file_sysverilog )
+        #print ( "Can't open " + file_verilog )
+        print ( "" )
     else:
         file_open = 1
 else:
     file_open = 1
+
+
+# ========== エンコード判別
+if file_open == 1:
+    lookup = ('utf_8', 'euc_jp', 'euc_jis_2004', 'euc_jisx0213',
+            'shift_jis', 'shift_jis_2004','shift_jisx0213',
+            'iso2022jp', 'iso2022_jp_1', 'iso2022_jp_2', 'iso2022_jp_3',
+            'iso2022_jp_ext','latin_1', 'ascii')
+
+    #一端ファイルクローズ
+    f.close()
+
+    for encode in lookup:
+        f = open(file_verilog,"r", encoding=encode)
+
+        try:
+            strings = f.read()
+        except UnicodeDecodeError:
+            #print("NG = " + encode)
+            f.close()
+        else:
+            #print("OK Encode = " + encode)
+            f.close()
+            break
+
+    #再度ファイルオープン
+    f = open(file_verilog,"r", encoding=encode)
 
 
 # ========== 読み込み処理
@@ -203,7 +233,6 @@ if file_open == 1:
     print (" Open " + file_verilog )
 
     read_verilog( f,s['mode'] )
-    
 
     f.close()
 else:
