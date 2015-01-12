@@ -33,8 +33,7 @@ wireを自動挿入します。
 - Python 3.0以降
 
 最新版:
-https://github.com/vim-jp/vim-verilog_instance
-
+https://github.com/norikatsu/verilog_instance.vim.git
 
 
 ==============================================================================
