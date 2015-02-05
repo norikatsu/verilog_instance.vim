@@ -1,11 +1,120 @@
 " Verilogのインスタンスを自動挿入
-" Version: 1.0
+" Version: 2.0
 " Author:  norikatsu <norikatsu@gmail.com>
 " License: VIM LICENSE
 
 
 let s:save_cpo = &cpo
 set cpo&vim
+
+
+
+"========== num分の長さの文字列にstringsを左詰して入れる(残りは空白文字)
+function!  verilog_instance#alignleft( num, strings )
+    let length = len(a:strings)
+    if ( a:num > length )
+        let space_num = a:num - length
+    else
+        let space_num = 1
+    endif
+
+    let outstrings = a:strings
+    for i in range(1,space_num)
+        let outstrings = outstrings . " "
+    endfor
+
+    return outstrings
+
+endfunction
+
+
+"========== wire 挿入関数
+function! verilog_instance#wires( modulename, list_io_mode, list_io_port, list_io_name, io_num)
+    "カーソル位置取得
+    let line_num = line(".")
+    
+    let indent = "    "
+
+    "モジュール名挿入
+    call append(line_num + 0, indent . "// ----- " . a:modulename . " inst wires")
+
+    "ポート名挿入
+    let i = 0
+    let j = 1
+    for atom_io_mode in a:list_io_mode
+        if ( (atom_io_mode == "output") || (atom_io_mode == "inout") )
+            let wire_wire = verilog_instance#alignleft(  8, "wire"                     )
+            let wire_name = verilog_instance#alignleft( 20, "xyz_" . a:list_io_name[i] )
+            let wire_port = verilog_instance#alignleft( 20,          a:list_io_port[i] )
+            let strings = indent . wire_wire . wire_port . wire_name . ";"
+            call append( line_num + j, strings )
+            let j = j + 1
+        endif
+        let i = i + 1
+    endfor
+
+endfunction
+
+
+"========== instance 挿入関数
+function! verilog_instance#instance( modulename, list_io_mode, list_io_port, list_io_name, io_num)
+    "カーソル位置取得
+    let line_num = line(".")
+    
+    let indent = "    "
+
+    "コメント挿入
+    call append(line_num + 0, indent . "// ----- " . a:modulename . " instance ")
+
+    "インスタンス名挿入
+    call append(line_num + 1, indent . a:modulename . " U" . a:modulename . " (" )
+
+
+    "ポート名挿入
+
+    let indent = "        "
+    let i = 0
+    let j = 2
+    for atom_io_mode in a:list_io_mode
+        " port名
+        let port_name = ".".a:list_io_name[i]
+
+        " wire名とコメント
+        if ( atom_io_mode == "output")
+            let wire_name = "( xyz_" . a:list_io_name[i] . " )"
+            let comment   = "// o  " . a:list_io_port[i]
+        elseif ( atom_io_mode == "inout")
+            let wire_name = "( xyz_" . a:list_io_name[i] . " )"
+            let comment   = "// io " . a:list_io_port[i]
+        else
+            let wire_name = "( "     . a:list_io_name[i] . " )"
+            let comment   = "// i  " . a:list_io_port[i]
+        endif
+
+        if ( i < (a:io_num-1) )
+            let wire_name = wire_name . ","
+        endif
+
+
+        let port_name = verilog_instance#alignleft( 20, port_name) 
+        let wire_name = verilog_instance#alignleft( 28, wire_name) 
+        let comment   = verilog_instance#alignleft( 24, comment) 
+
+        let strings = indent . port_name . wire_name . comment
+        call append(line_num + j, strings)
+
+        let i = i + 1
+        let j = j + 1
+    endfor
+
+    "インスタンス終了
+    let indent = "    "
+    call append(line_num + j, indent . ");" )
+
+endfunction
+
+
+
 
 
 "========== Script 本体
@@ -79,9 +188,9 @@ function! verilog_instance#insert( mode )
         endfor
 
         if ( a:mode == 0 )
-            call Verilog_test_wires( modulename, list_io_mode, list_io_port, list_io_name, io_num)
+            call verilog_instance#wires( modulename, list_io_mode, list_io_port, list_io_name, io_num)
         else
-            call Verilog_test_instance( modulename, list_io_mode, list_io_port, list_io_name, io_num)
+            call verilog_instance#instance( modulename, list_io_mode, list_io_port, list_io_name, io_num)
         endif
     endif
 
