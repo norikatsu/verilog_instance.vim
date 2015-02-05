@@ -30,7 +30,6 @@ wireを自動挿入します。
 
 要件:
 - Vim 7.0 以降
-- Python 3.0以降
 
 最新版:
 https://github.com/norikatsu/verilog_instance.vim.git
@@ -83,8 +82,8 @@ g:verilog_instance_no_default_key_mappings に 1 が設定されていると定�
 
 1.0	2015-01-08
 	- 初版。
-
-
+2.0	2015-02-05 
+        python3からvimscript版へ変更
 
 ==============================================================================
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
