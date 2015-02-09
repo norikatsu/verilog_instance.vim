@@ -134,63 +134,80 @@ function! verilog_instance#insert( mode )
         let s:error_message = "Not Found Moudle Name"
         echo s:error_message
     else
-        let s:file_name = s:module_name.".v"
-        let io_num = 0
-        let list_io_mode = []
-        let list_io_port = []
-        let list_io_name = []
 
-        for line in readfile(s:file_name)
-            "echo line
-            let linelist = split(line)
-            let length = len(linelist)
-            "echo length
-            if ( length > 1)
-                " モジュール名検出
-                if ( linelist[0] == "module")
-                    if (linelist[1][-1:-1] == "(" )
-                        let modulename = linelist[1][0:-2]
-                    else
-                        let modulename = linelist[1]
-                    endif
-                    echo "Module Name = ".modulename
-                endif
+        "Fileの有無確認
 
-                " input output inout名検出
-                if (  (linelist[0] == "input")||(linelist[0] == "output")||(linelist[0] == "inout") )
-                    let io_mode = linelist[0]
-                    " ポート数検出
-                    if ( linelist[1][0] == "[")
-                        let i = 1
-                        let io_port = linelist[1]
-                        "echo "linelist1 = ".linelist[1]
-                        "echo "io_port = ".io_port
-                        while ( linelist[i][-1:-1] != "]" )
-                            let i = i + 1
-                            let io_port = io_port.linelist[i]
-                        endwhile
-                        let io_name = linelist[i+1]
-                    else
-                        let io_port = ""
-                        let io_name = linelist[1]
-                    endif
-                    "IO名整形(セミコロン削除)
-                    if ( io_name[-1:-1] == ";" )
-                        let io_name = io_name[0:-2]
-                    endif
-                    "echo io_mode.", ".io_port.", ".io_name
-                    let list_io_mode = add(list_io_mode,io_mode)
-                    let list_io_port = add(list_io_port,io_port)
-                    let list_io_name = add(list_io_name,io_name)
-                    let io_num = io_num + 1
-                endif
-            endif
-        endfor
-
-        if ( a:mode == 0 )
-            call verilog_instance#wires( modulename, list_io_mode, list_io_port, list_io_name, io_num)
+        if ( filereadable( s:module_name.".v" ) )
+            let s:readable = 1
+            let s:file_name = s:module_name.".v"
+        elseif ( filereadable( s:module_name.".sv") )
+            let s:readable = 1
+            let s:file_name = s:module_name.".sv"
         else
-            call verilog_instance#instance( modulename, list_io_mode, list_io_port, list_io_name, io_num)
+            let s:readable = 0
+        endif
+
+        if ( s:readable == 0)
+            let s:error_message = "Not Found " . s:module_name . " File"
+            echo s:error_message
+        else
+            let io_num = 0
+            let list_io_mode = []
+            let list_io_port = []
+            let list_io_name = []
+
+            for line in readfile(s:file_name)
+                "echo line
+                let linelist = split(line)
+                let length = len(linelist)
+                "echo length
+                if ( length > 1)
+                    " モジュール名検出
+                    if ( linelist[0] == "module")
+                        if (linelist[1][-1:-1] == "(" )
+                            let modulename = linelist[1][0:-2]
+                        else
+                            let modulename = linelist[1]
+                        endif
+                        echo "Module Name = ".modulename
+                    endif
+
+                    " input output inout名検出
+                    if (  (linelist[0] == "input")||(linelist[0] == "output")||(linelist[0] == "inout") )
+                        let io_mode = linelist[0]
+                        " ポート数検出
+                        if ( linelist[1][0] == "[")
+                            let i = 1
+                            let io_port = linelist[1]
+                            "echo "linelist1 = ".linelist[1]
+                            "echo "io_port = ".io_port
+                            while ( linelist[i][-1:-1] != "]" )
+                                let i = i + 1
+                                let io_port = io_port.linelist[i]
+                            endwhile
+                            let io_name = linelist[i+1]
+                        else
+                            let io_port = ""
+                            let io_name = linelist[1]
+                        endif
+                        "IO名整形(セミコロン削除)
+                        if ( io_name[-1:-1] == ";" )
+                            let io_name = io_name[0:-2]
+                        endif
+                        "echo io_mode.", ".io_port.", ".io_name
+                        let list_io_mode = add(list_io_mode,io_mode)
+                        let list_io_port = add(list_io_port,io_port)
+                        let list_io_name = add(list_io_name,io_name)
+                        let io_num = io_num + 1
+                    endif
+                endif
+            endfor
+
+            if ( a:mode == 0 )
+                call verilog_instance#wires( modulename, list_io_mode, list_io_port, list_io_name, io_num)
+            else
+                call verilog_instance#instance( modulename, list_io_mode, list_io_port, list_io_name, io_num)
+            endif
         endif
     endif
 
