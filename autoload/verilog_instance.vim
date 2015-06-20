@@ -172,6 +172,11 @@ function! verilog_instance#insert( mode )
                         echo "Module Name = ".modulename
                     endif
 
+                    " Function の入力部を排除するため
+                    if ( linelist[0] == "function")
+                        break
+                    endif
+
                     " input output inout名検出
                     if (  (linelist[0] == "input")||(linelist[0] == "output")||(linelist[0] == "inout") )
                         let io_mode = linelist[0]
